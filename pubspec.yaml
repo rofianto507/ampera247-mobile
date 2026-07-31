@@ -1,0 +1,90 @@
+﻿name: digital_kamtibmas_mobile
+description: "AMPERA247 - Platform Layanan Publik Digital Kota Palembang."
+publish_to: 'none'
+version: 1.1.0+3
+# Format: versionName+versionCode
+# versionCode (angka setelah +) WAJIB naik setiap upload ke Play Store
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # Networking
+  dio: ^5.8.0
+
+  # State management (manual providers - no code gen)
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Secure storage
+  flutter_secure_storage: ^9.2.2
+
+  # Date formatting
+  intl: ^0.20.2
+
+  # File/image picker (web + Android + iOS)
+  file_picker: ^9.0.0
+
+  # WebView (mobile only)
+  webview_flutter: ^4.10.0
+  webview_flutter_android: ^4.3.0
+
+  # URL launcher (web fallback for WebView)
+  url_launcher: ^6.3.1
+
+  # Runtime permissions
+  permission_handler: ^11.3.1
+
+  # Map + GPS
+  geolocator: ^13.0.2
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+  # Foreground service (notifikasi saat patroli aktif)
+  flutter_foreground_task: ^8.13.0
+
+  # Data classes
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+
+dependency_overrides:
+  flutter_plugin_android_lifecycle: 2.0.22
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+
+  # Code generation (freezed + json only)
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"
+    background_color: "#ffffff"
+    theme_color: "#1D2A44"
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#A2CFFE"
+  adaptive_icon_foreground: "assets/images/logo.png"

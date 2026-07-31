@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "AMPERA247 - Web Server :5500",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "web-server",
+      "args": [
+        "--dart-define=BASE_URL=http://localhost:8069",
+        "--dart-define=DB_NAME=petadigi",
+        "--web-port=5500"
+      ]
+    },
+    {
+      "name": "AMPERA247 - Chrome (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "args": [
+        "--dart-define=BASE_URL=http://localhost:8069",
+        "--dart-define=DB_NAME=petadigi"
+      ]
+    },
+    {
+      "name": "AMPERA247 - Edge (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "edge",
+      "args": [
+        "--dart-define=BASE_URL=http://localhost:8069",
+        "--dart-define=DB_NAME=petadigi"
+      ]
+    }
+  ]
+}
