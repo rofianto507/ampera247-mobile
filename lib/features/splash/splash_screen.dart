@@ -97,7 +97,7 @@ class SplashScreen extends StatelessWidget {
 
                   // Subtitle
                   const Text(
-                    'AMPERA247',
+                    'Layanan Digital Kota Palembang',
                     style: TextStyle(
                       color: Color(0xFFA2CFFE),
                       fontSize: 12,

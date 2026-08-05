@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -45,8 +46,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (!isLoggedIn && loc != '/login' && loc != '/register') return '/login';
 
-      // Fitur patroli dinonaktifkan di iOS
-      final isPatroli = !Platform.isIOS && (user?.isPatroli ?? false);
+      // Fitur patroli dinonaktifkan di iOS dan web
+      final isPatroli = !kIsWeb && !Platform.isIOS && (user?.isPatroli ?? false);
 
       if (isLoggedIn && (loc == '/login' || loc == '/splash' || loc == '/register')) {
         return isPatroli ? '/patroli' : '/dashboard';

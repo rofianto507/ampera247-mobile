@@ -174,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
 
                       const Text(
-                        'AMPERA247',
+                        'Kota Palembang',
                         style: TextStyle(
                           color: Color(0xFFC5D5E8),
                           fontSize: 12,
