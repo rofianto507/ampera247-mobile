@@ -79,5 +79,11 @@
 	<string>Kamera digunakan untuk video call konsultasi dengan konselor.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Mikrofon digunakan untuk audio call konsultasi dengan konselor.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Akses galeri foto diperlukan untuk melampirkan foto pada laporan dan formulir.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Akses galeri foto diperlukan untuk menyimpan foto bukti laporan.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
