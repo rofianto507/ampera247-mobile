@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -43,7 +44,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     );
     if (result != null && result.files.single.bytes != null) {
       setState(() {
-        _fotoBase64  = base64Encode(result.files.single.bytes!);
+        _fotoBase64   = base64Encode(result.files.single.bytes!);
         _fotoFileName = result.files.single.name;
       });
     }
@@ -55,7 +56,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       nama:       _namaCtrl.text.trim(),
       phone:      _phoneCtrl.text.trim(),
       alamat:     _alamatCtrl.text.trim(),
-      fotoBase64: _fotoBase64,
+      fotoBase64: kIsWeb ? null : _fotoBase64,
     );
   }
 
@@ -234,16 +235,17 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       const SizedBox(height: 14),
                       _buildField(
                         controller: _alamatCtrl,
-                        label: 'Alamat',
+                        label: 'Alamat (opsional)',
                         icon: Icons.home_outlined,
                         enabled: !isLoading,
                         maxLines: 3,
                         action: TextInputAction.done,
+                        validator: (_) => null,
                       ),
-                      const SizedBox(height: 14),
-
-                      // Foto picker
-                      _buildFotoPicker(isLoading),
+                      if (!kIsWeb) ...[
+                        const SizedBox(height: 14),
+                        _buildFotoPicker(isLoading),
+                      ],
 
                       // Error message
                       if (ref.watch(registrationProvider).status == RegStatus.error) ...[
@@ -347,8 +349,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                         fit: BoxFit.cover,
                       ),
                     )
-                  : const Icon(Icons.camera_alt_outlined,
-                      color: _kSky, size: 22),
+                  : const Icon(Icons.camera_alt_outlined, color: _kSky, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -358,9 +359,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   Text(
                     _fotoFileName ?? 'Foto',
                     style: TextStyle(
-                      color: _fotoBase64 != null
-                          ? _kDark
-                          : const Color(0xFF888888),
+                      color: _fotoBase64 != null ? _kDark : const Color(0xFF888888),
                       fontSize: 14,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -368,18 +367,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   if (_fotoFileName == null)
                     Text(
                       'Ketuk untuk memilih foto',
-                      style: TextStyle(
-                        color: Colors.grey.shade500,
-                        fontSize: 11,
-                      ),
+                      style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                     ),
                 ],
               ),
             ),
             if (_fotoBase64 != null)
               IconButton(
-                icon: Icon(Icons.close_rounded,
-                    size: 18, color: Colors.grey.shade500),
+                icon: Icon(Icons.close_rounded, size: 18, color: Colors.grey.shade500),
                 onPressed: () => setState(() {
                   _fotoBase64   = null;
                   _fotoFileName = null;
