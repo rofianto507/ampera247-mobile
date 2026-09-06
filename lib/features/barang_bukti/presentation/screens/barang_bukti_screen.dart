@@ -239,32 +239,37 @@ class _BarangBuktiScreenState extends ConsumerState<BarangBuktiScreen> {
                   final selected = _filterType == opt.$1;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () {
-                        if (_filterType == opt.$1) return;
-                        setState(() {
-                          _filterType = opt.$1;
-                          _queryCtrl.clear();
-                          _result = null;
-                          _error = null;
-                        });
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: selected ? _kBlue1 : _kBlue1.withValues(alpha: 0.06),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: selected ? _kBlue1 : _kBlue1.withValues(alpha: 0.18),
-                          ),
+                    child: Material(
+                      color: selected ? _kBlue1 : _kBlue1.withValues(alpha: 0.06),
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(
+                          color: selected ? _kBlue1 : _kBlue1.withValues(alpha: 0.18),
                         ),
-                        child: Text(
-                          opt.$2,
-                          style: TextStyle(
-                            color: selected ? Colors.white : _kBlue1,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          if (_filterType == opt.$1) return;
+                          setState(() {
+                            _filterType = opt.$1;
+                            _queryCtrl.clear();
+                            _result = null;
+                            _error = null;
+                          });
+                        },
+                        splashColor: (selected ? Colors.white : _kBlue1)
+                            .withValues(alpha: 0.25),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 7),
+                          child: Text(
+                            opt.$2,
+                            style: TextStyle(
+                              color: selected ? Colors.white : _kBlue1,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

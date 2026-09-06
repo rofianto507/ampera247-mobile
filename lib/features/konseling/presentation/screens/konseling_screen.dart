@@ -721,24 +721,27 @@ class _GenderChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? _kBlue1 : Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-              color: selected ? _kBlue1 : Colors.grey.shade300, width: 1.5),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? Colors.white : Colors.grey.shade600,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
+    return Material(
+      color: selected ? _kBlue1 : Colors.white,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(
+            color: selected ? _kBlue1 : Colors.grey.shade300, width: 1.5),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        splashColor:
+            (selected ? Colors.white : _kBlue1).withValues(alpha: 0.2),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: selected ? Colors.white : Colors.grey.shade600,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
           ),
         ),
       ),
@@ -1188,22 +1191,24 @@ class _FilterSheet extends StatelessWidget {
             runSpacing: 8,
             children: _options.map((opt) {
               final isActive = (current ?? '') == opt.value;
-              return GestureDetector(
-                onTap: () => Navigator.pop(context, opt.value),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isActive ? _kBlue1 : const Color(0xFFF0F4FF),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    opt.label,
-                    style: TextStyle(
-                      color: isActive ? Colors.white : _kBlue1,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+              return Material(
+                color: isActive ? _kBlue1 : const Color(0xFFF0F4FF),
+                borderRadius: BorderRadius.circular(6),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: () => Navigator.pop(context, opt.value),
+                  splashColor: (isActive ? Colors.white : _kBlue1)
+                      .withValues(alpha: 0.25),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    child: Text(
+                      opt.label,
+                      style: TextStyle(
+                        color: isActive ? Colors.white : _kBlue1,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),

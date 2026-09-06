@@ -149,7 +149,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       // Brand
                       const Text(
-                        'AMPERA247',
+                        'AMPERA2407',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,

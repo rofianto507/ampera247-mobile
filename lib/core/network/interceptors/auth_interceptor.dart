@@ -2,19 +2,19 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../constants/app_constants.dart';
+import '../session_expired_notifier.dart';
 
 class AuthInterceptor extends Interceptor {
   final FlutterSecureStorage _storage;
+  final SessionExpiredNotifier _sessionExpired;
 
-  AuthInterceptor(this._storage);
+  AuthInterceptor(this._storage, this._sessionExpired);
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // Web: browser sends session cookie automatically via withCredentials.
-    // Native: manually attach session_id cookie from secure storage.
     if (!kIsWeb) {
       final token = await _storage.read(key: AppConstants.tokenKey);
       if (token != null) {
@@ -25,8 +25,23 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    // Odoo mengembalikan SessionExpiredException dalam body JSON-RPC (status 200)
+    final data = response.data;
+    if (data is Map) {
+      final name = (data['error'] as Map?)?['data']?['name'] as String? ?? '';
+      if (name == 'odoo.exceptions.SessionExpiredException') {
+        _sessionExpired.expire();
+      }
+    }
+    handler.next(response);
+  }
+
+  @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // 401 is handled at the repository level to trigger re-login
+    if (err.response?.statusCode == 401) {
+      _sessionExpired.expire();
+    }
     handler.next(err);
   }
 }

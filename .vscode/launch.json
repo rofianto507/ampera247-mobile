@@ -2,6 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "AMPERA247 - Real Device (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "058990610406",
+      "args": [
+        "--dart-define=BASE_URL=https://palembang.polisibaik.id",
+        "--dart-define=DB_NAME=palembang"
+      ]
+    },
+    {
       "name": "AMPERA247 - Web Server :5500",
       "request": "launch",
       "type": "dart",

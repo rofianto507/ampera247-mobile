@@ -10,80 +10,14 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../eform_laka/presentation/providers/eform_laka_provider.dart';
 import '../../../rehab/presentation/providers/rehab_provider.dart';
 import '../../../notifikasi/presentation/providers/notifikasi_provider.dart';
+import '../providers/welcome_screen_provider.dart';
+import '../providers/slider_provider.dart';
 
 const _kBlue0 = Color(0xFF0D1526);
 const _kBlue1 = Color(0xFF1D2A44);
-const _kBlue2 = Color(0xFF243356);
 const _kSky   = Color(0xFFA2CFFE);
 const _kRed   = Color(0xFFDD1111);
 
-// â”€â”€ Slide data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-class _Slide {
-  final List<Color> gradient;
-  final IconData? icon;
-  final String? imagePath;
-  final String title;
-  final String subtitle;
-  final String? route;
-  final Color? titleColor;
-  final Color? subtitleColor;
-  const _Slide({
-    required this.gradient,
-    this.icon,
-    this.imagePath,
-    required this.title,
-    required this.subtitle,
-    this.route,
-    this.titleColor,
-    this.subtitleColor,
-  });
-}
-
-const _slides = [
-  _Slide(
-    gradient: [Color(0xFFB8860B), Color(0xFFDAA520)],
-    imagePath: 'assets/images/logo.png',
-    title: 'AMPERA247',
-    subtitle: 'Aplikasi Layanan Publik Digital Kota Palembang',
-    titleColor: Color(0xFFCC0000),
-    subtitleColor: Color(0xFF1A1A2E),
-  ),
-  _Slide(
-    gradient: [Color(0xFF1D2A44), Color(0xFF243356)],
-    icon: Icons.car_crash_rounded,
-    title: 'e-Form Kecelakaan',
-    subtitle: 'Laporkan kecelakaan langsung dari genggaman Anda',
-    route: '/eform-laka',
-  ),
-  _Slide(
-    gradient: [Color(0xFF243356), Color(0xFF0D1526)],
-    icon: Icons.verified_rounded,
-    title: 'Sertifikasi Anti Narkoba',
-    subtitle: 'Ikuti tes sertifikasi bebas narkoba secara online',
-    route: '/sertifikasi',
-  ),
-  _Slide(
-    gradient: [Color(0xFF0D1526), Color(0xFF243356)],
-    icon: Icons.healing_rounded,
-    title: 'Rehabilitasi Narkoba',
-    subtitle: 'Ajukan permohonan rehab narkoba secara mudah dan cepat',
-    route: '/rehab',
-  ),
-  _Slide(
-    gradient: [Color(0xFF1D2A44), Color(0xFF0D1526)],
-    icon: Icons.psychology_rounded,
-    title: 'Konseling Online',
-    subtitle: 'Konsultasikan masalah narkoba dengan konselor profesional',
-    route: '/konseling',
-  ),
-  _Slide(
-    gradient: [Color(0xFF243356), Color(0xFF1D2A44)],
-    icon: Icons.confirmation_number_rounded,
-    title: 'Antrian Online',
-    subtitle: 'Ambil nomor antrian layanan publik tanpa perlu menunggu',
-    route: '/antrian',
-  ),
-];
 
 // ── Activity model (riwayat layanan) ─────────────────────────────────────────
 
@@ -219,11 +153,43 @@ final riwayatLayananProvider =
 
 // â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  // Reset to false tiap restart app (per-session)
+  static bool _welcomeShownThisSession = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_welcomeShownThisSession) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowWelcome());
+    }
+  }
+
+  Future<void> _maybeShowWelcome() async {
+    if (_welcomeShownThisSession || !mounted) return;
+    _welcomeShownThisSession = true;
+
+    final data = await ref.read(welcomeScreenProvider.future);
+    if (data == null || !mounted) return;
+
+    final dio = ref.read(apiClientProvider).dio;
+    await showDialog<void>(
+      context: context,
+      barrierColor: Colors.black54,
+      barrierDismissible: true,
+      builder: (ctx) => _WelcomeDialog(data: data, dio: dio),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(authNotifierProvider).valueOrNull;
 
     return Scaffold(
@@ -328,227 +294,255 @@ class DashboardScreen extends ConsumerWidget {
       );
 }
 
-// â”€â”€ Banner Slider â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â”€â”€ Welcome Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-class _BannerSlider extends StatefulWidget {
-  const _BannerSlider();
+class _WelcomeDialog extends StatefulWidget {
+  final WelcomeScreenData data;
+  final Dio dio;
+  const _WelcomeDialog({required this.data, required this.dio});
 
   @override
-  State<_BannerSlider> createState() => _BannerSliderState();
+  State<_WelcomeDialog> createState() => _WelcomeDialogState();
 }
 
-class _BannerSliderState extends State<_BannerSlider> {
+class _WelcomeDialogState extends State<_WelcomeDialog> {
+  Uint8List? _bytes;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      final resp = await widget.dio.get<List<int>>(
+        widget.data.imageUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      if (mounted && resp.data != null) {
+        setState(() {
+          _bytes = Uint8List.fromList(resp.data!);
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      behavior: HitTestBehavior.opaque,
+      child: Material(
+        color: Colors.transparent,
+        child: SafeArea(
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 56),
+                  child: _loading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white, strokeWidth: 2)
+                      : _bytes == null
+                          ? const SizedBox.shrink()
+                          : GestureDetector(
+                              onTap: () {},
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.memory(
+                                  _bytes!,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                ),
+              ),
+              // Tombol tutup
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  icon: const Icon(Icons.close_rounded,
+                      color: Colors.white, size: 28),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+// ── Banner Slider ──────────────────────────────────────────────────────────────
+
+class _BannerSlider extends ConsumerStatefulWidget {
+  const _BannerSlider();
+  @override
+  ConsumerState<_BannerSlider> createState() => _BannerSliderState();
+}
+
+class _BannerSliderState extends ConsumerState<_BannerSlider> {
   late final PageController _ctrl;
-  late final Timer _timer;
+  Timer? _timer;
   int _page = 0;
 
   @override
   void initState() {
     super.initState();
     _ctrl = PageController(viewportFraction: 0.88);
+  }
+
+  void _startTimer(int count) {
+    _timer?.cancel();
+    if (count < 2) return;
     _timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
-      final next = (_page + 1) % _slides.length;
-      _ctrl.animateToPage(
-        next,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
+      final next = (_page + 1) % count;
+      _ctrl.animateToPage(next, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     });
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 160,
-          child: PageView.builder(
-            controller: _ctrl,
-            itemCount: _slides.length,
-            onPageChanged: (i) => setState(() => _page = i),
-            itemBuilder: (_, i) => _SlideCard(slide: _slides[i]),
-          ),
-        ),
-        const SizedBox(height: 10),
-        // Dot indicators
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_slides.length, (i) {
-            final active = i == _page;
-            return AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: active ? 20 : 6,
-              height: 6,
-              decoration: BoxDecoration(
-                color: active
-                    ? _kBlue1
-                    : _kBlue1.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(3),
+    final dio = ref.read(apiClientProvider).dio;
+
+    ref.listen<AsyncValue<List<SliderItem>>>(sliderProvider, (_, next) {
+      next.whenData((items) => _startTimer(items.length));
+    });
+
+    return ref.watch(sliderProvider).when(
+      loading: () => _buildSkeleton(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (items) {
+        if (items.isEmpty) return const SizedBox.shrink();
+        return Column(
+          children: [
+            SizedBox(
+              height: 160,
+              child: PageView.builder(
+                controller: _ctrl,
+                itemCount: items.length,
+                onPageChanged: (i) => setState(() => _page = i),
+                itemBuilder: (_, i) => _SlideImageCard(item: items[i], dio: dio),
               ),
-            );
-          }),
-        ),
-      ],
+            ),
+            if (items.length > 1) ...[
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(items.length, (i) {
+                  final active = i == _page;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: active ? 20 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: active ? _kBlue1 : _kBlue1.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
-}
 
-class _SlideCard extends StatelessWidget {
-  final _Slide slide;
-  const _SlideCard({required this.slide});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: slide.route != null
-          ? () => context.push(slide.route!)
-          : null,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: slide.gradient,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF0D1526).withValues(alpha: 0.35),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Decorative circle motif
-            Positioned(
-              right: -20,
-              top: -20,
-              child: Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.06),
-                ),
-              ),
-            ),
-            Positioned(
-              right: 20,
-              bottom: -30,
-              child: Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.04),
-                ),
-              ),
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  // Icon
-                  if (slide.imagePath != null)
-                    Image.asset(
-                      slide.imagePath!,
-                      width: 56,
-                      height: 56,
-                      fit: BoxFit.contain,
-                    )
-                  else
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(slide.icon, color: Colors.white, size: 28),
-                    ),
-                  const SizedBox(width: 16),
-                  // Text
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          slide.title,
-                          style: TextStyle(
-                            color: slide.titleColor ?? Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          slide.subtitle,
-                          style: TextStyle(
-                            color: slide.subtitleColor ??
-                                Colors.white.withValues(alpha: 0.80),
-                            fontSize: 12,
-                            height: 1.4,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (slide.route != null) ...[
-                          const SizedBox(height: 10),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Buka Layanan',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 4),
-                                Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: Colors.white,
-                                  size: 11,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+  Widget _buildSkeleton() {
+    return Container(
+      height: 160,
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: _kBlue1.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(16),
       ),
     );
   }
 }
+
+class _SlideImageCard extends StatefulWidget {
+  final SliderItem item;
+  final Dio dio;
+  const _SlideImageCard({required this.item, required this.dio});
+  @override
+  State<_SlideImageCard> createState() => _SlideImageCardState();
+}
+
+class _SlideImageCardState extends State<_SlideImageCard>
+    with AutomaticKeepAliveClientMixin {
+  Uint8List? _bytes;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      final resp = await widget.dio.get<List<int>>(
+        widget.item.imageUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      if (mounted && resp.data != null) {
+        setState(() => _bytes = Uint8List.fromList(resp.data!));
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: _kBlue1,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0D1526).withValues(alpha: 0.35),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: _bytes == null
+            ? const Center(
+                child: SizedBox(
+                  width: 24, height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white38),
+                ),
+              )
+            : Image.memory(_bytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+      ),
+    );
+  }
+}
+
 
 // â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -584,17 +578,22 @@ class _Header extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 14, 8, 16),
         child: Row(
           children: [
-            GestureDetector(
-              onTap: () => context.push('/profile'),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: _kBlue1.withValues(alpha: 0.10),
-                child: ClipOval(
-                  child: _AvatarImage(
-                    url:
-                        '${AppConfig.baseUrl}/web/image/res.users/$userId/image_128',
-                    initials: _initials(userName),
-                    dio: ref.read(apiClientProvider).dio,
+            Material(
+              color: _kBlue1.withValues(alpha: 0.10),
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => context.push('/profile'),
+                child: SizedBox(
+                  width: 52,
+                  height: 52,
+                  child: ClipOval(
+                    child: _AvatarImage(
+                      url: '${AppConfig.baseUrl}/web/image/res.users/$userId/image_128',
+                      initials: _initials(userName),
+                      dio: ref.read(apiClientProvider).dio,
+                    ),
                   ),
                 ),
               ),
@@ -837,14 +836,10 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => context.push(activity.route),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -854,58 +849,69 @@ class _ActivityTile extends StatelessWidget {
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: activity.iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(activity.icon, color: activity.iconColor, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => context.push(activity.route),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
                 children: [
-                  Text(
-                    activity.title,
-                    style: const TextStyle(
-                      color: _kBlue0,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: activity.iconColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(activity.icon, color: activity.iconColor, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          activity.title,
+                          style: const TextStyle(
+                            color: _kBlue0,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${activity.ref} · ${_actDate(activity.date)}',
+                          style: TextStyle(
+                            color: _kBlue1.withValues(alpha: 0.55),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${activity.ref} · ${_actDate(activity.date)}',
-                    style: TextStyle(
-                      color: _kBlue1.withValues(alpha: 0.55),
-                      fontSize: 11,
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: activity.stateColor.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      activity.stateLabel,
+                      style: TextStyle(
+                        color: activity.stateColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: activity.stateColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                activity.stateLabel,
-                style: TextStyle(
-                  color: activity.stateColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

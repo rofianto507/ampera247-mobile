@@ -256,21 +256,23 @@ class _FilterSheet extends StatelessWidget {
 
   Widget _chip(BuildContext context, String label, bool isActive,
       VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isActive ? _kBlue : const Color(0xFFF0F4FF),
-          borderRadius: BorderRadius.circular(6),
+    return Material(
+      color: isActive ? _kBlue : const Color(0xFFF0F4FF),
+      borderRadius: BorderRadius.circular(6),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: (isActive ? Colors.white : _kBlue).withValues(alpha: 0.25),
+        highlightColor: (isActive ? Colors.white : _kBlue).withValues(alpha: 0.12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          child: Text(label,
+              style: TextStyle(
+                color: isActive ? Colors.white : _kBlue1,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              )),
         ),
-        child: Text(label,
-            style: TextStyle(
-              color: isActive ? Colors.white : _kBlue1,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            )),
       ),
     );
   }
@@ -400,119 +402,122 @@ class _AntrianCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final dateFmt = DateFormat('dd MMM yyyy', 'id');
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: _kBlue1.withValues(alpha: 0.07),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _showAntrianDetail(context, item),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            children: [
-              // Nomor urut box
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: _kBlue.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      item.nomorUrut.toString().padLeft(3, '0'),
-                      style: const TextStyle(
-                        color: _kBlue,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'monospace',
-                        height: 1,
-                      ),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: _kBlue1.withValues(alpha: 0.07),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _showAntrianDetail(context, item),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: _kBlue.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      item.layananNama?.split(' ').first ?? '-',
-                      style: TextStyle(
-                        color: _kBlue.withValues(alpha: 0.6),
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _kBlue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                        Text(
+                          item.nomorUrut.toString().padLeft(3, '0'),
+                          style: const TextStyle(
+                            color: _kBlue,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'monospace',
+                            height: 1,
                           ),
-                          child: Text(item.nomorAntrian,
-                              style: const TextStyle(
-                                color: _kBlue,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                fontFamily: 'monospace',
-                                letterSpacing: 0.5,
-                              )),
                         ),
-                        const SizedBox(width: 6),
-                        _StateBadge(state: item.state),
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Text(item.atasNama,
-                        style: const TextStyle(
-                            fontSize: 13,
+                        const SizedBox(height: 2),
+                        Text(
+                          item.layananNama?.split(' ').first ?? '-',
+                          style: TextStyle(
+                            color: _kBlue.withValues(alpha: 0.6),
+                            fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: _kBlue1),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 2),
-                    Text(item.loketNama,
-                        style: TextStyle(
-                            color: Colors.grey.shade500, fontSize: 11),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.calendar_today_rounded,
-                            size: 11, color: Colors.grey.shade400),
-                        const SizedBox(width: 4),
-                        Text(dateFmt.format(item.tanggalBooking),
-                            style: TextStyle(
-                                color: Colors.grey.shade500, fontSize: 11)),
+                            letterSpacing: 0.5,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _kBlue.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(item.nomorAntrian,
+                                  style: const TextStyle(
+                                    color: _kBlue,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'monospace',
+                                    letterSpacing: 0.5,
+                                  )),
+                            ),
+                            const SizedBox(width: 6),
+                            _StateBadge(state: item.state),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Text(item.atasNama,
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _kBlue1),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 2),
+                        Text(item.loketNama,
+                            style: TextStyle(
+                                color: Colors.grey.shade500, fontSize: 11),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_rounded,
+                                size: 11, color: Colors.grey.shade400),
+                            const SizedBox(width: 4),
+                            Text(dateFmt.format(item.tanggalBooking),
+                                style: TextStyle(
+                                    color: Colors.grey.shade500, fontSize: 11)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

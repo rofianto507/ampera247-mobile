@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../core/network/session_expired_notifier.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/antrian/presentation/screens/antrian_screen.dart';
@@ -23,21 +24,35 @@ import '../../features/patroli/presentation/screens/patroli_settings_screen.dart
 import '../../features/patroli/presentation/screens/patroli_detail_screen.dart';
 import '../../features/splash/splash_screen.dart';
 
+final _splashTimerProvider = FutureProvider<void>((ref) async {
+  await Future.delayed(const Duration(milliseconds: 3000));
+});
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _AuthRouterNotifier();
   ref.onDispose(notifier.dispose);
 
   ref.listen(authNotifierProvider, (_, _) => notifier.signal());
+  ref.listen(_splashTimerProvider, (_, _) => notifier.signal());
+
+  // Auto-logout saat Odoo session expired (server restart, timeout, dll.)
+  ref.listen<SessionExpiredNotifier>(sessionExpiredProvider, (_, expired) {
+    if (expired.hasExpired) {
+      expired.reset();
+      ref.read(authNotifierProvider.notifier).logout();
+    }
+  });
 
   return GoRouter(
     initialLocation: '/splash',
     refreshListenable: notifier,
     redirect: (context, state) {
       final authAsync = ref.read(authNotifierProvider);
+      final splashDone = ref.read(_splashTimerProvider).hasValue;
       final loc = state.matchedLocation;
 
-      if (authAsync.isLoading) {
-        if (loc == '/splash' || loc == '/login' || loc == '/register') return null;
+      if (authAsync.isLoading || !splashDone) {
+        if (loc == '/splash') return null;
         return '/splash';
       }
 

@@ -4,23 +4,24 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/app_config.dart';
 import '../error/exceptions.dart';
 import 'interceptors/auth_interceptor.dart';
+import 'session_expired_notifier.dart';
 
 class ApiClient {
   late final Dio _dio;
 
-  ApiClient({FlutterSecureStorage? storage}) {
+  ApiClient({FlutterSecureStorage? storage, SessionExpiredNotifier? sessionExpired}) {
     final sec = storage ?? const FlutterSecureStorage();
+    final expiredNotifier = sessionExpired ?? SessionExpiredNotifier();
     _dio = Dio(
       BaseOptions(
         baseUrl: AppConfig.baseUrl,
         connectTimeout: AppConfig.connectTimeout,
         receiveTimeout: AppConfig.receiveTimeout,
         contentType: 'application/json',
-        // Web: browser handles session cookie automatically when withCredentials=true
         extra: kIsWeb ? {'withCredentials': true} : {},
       ),
     )..interceptors.addAll([
-        AuthInterceptor(sec),
+        AuthInterceptor(sec, expiredNotifier),
         if (!AppConfig.isProduction)
           LogInterceptor(requestBody: true, responseBody: true),
       ]);
