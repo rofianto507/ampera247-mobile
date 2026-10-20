@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -20,21 +21,110 @@ class RegistrationScreen extends ConsumerStatefulWidget {
   ConsumerState<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
+enum _UsernameStatus { idle, checking, available, unavailable }
+
+// Harus sama dengan aturan di server (controllers/mobile_register.py).
+final _usernameRe = RegExp(r'^[a-z][a-z0-9._]{3,29}$');
+
 class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
-  final _formKey   = GlobalKey<FormState>();
-  final _namaCtrl  = TextEditingController();
-  final _phoneCtrl = TextEditingController();
-  final _alamatCtrl = TextEditingController();
+  final _formKey      = GlobalKey<FormState>();
+  final _usernameCtrl = TextEditingController();
+  final _namaCtrl     = TextEditingController();
+  final _passCtrl     = TextEditingController();
+  final _pass2Ctrl    = TextEditingController();
 
   String? _fotoBase64;
   String? _fotoFileName;
+  bool _obscure = true;
+
+  Timer? _debounce;
+  int _checkSeq = 0; // abaikan respons cek username yang sudah usang
+  _UsernameStatus _usernameStatus = _UsernameStatus.idle;
+  String? _usernameError; // alasan dari server bila tidak tersedia
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    _usernameCtrl.dispose();
     _namaCtrl.dispose();
-    _phoneCtrl.dispose();
-    _alamatCtrl.dispose();
+    _passCtrl.dispose();
+    _pass2Ctrl.dispose();
     super.dispose();
+  }
+
+  void _onUsernameChanged(String raw) {
+    _debounce?.cancel();
+    final value = raw.trim();
+    final seq = ++_checkSeq;
+    if (!_usernameRe.hasMatch(value)) {
+      // Format salah: ditangani validator, tidak perlu tanya server.
+      setState(() {
+        _usernameStatus = _UsernameStatus.idle;
+        _usernameError = null;
+      });
+      return;
+    }
+    setState(() {
+      _usernameStatus = _UsernameStatus.checking;
+      _usernameError = null;
+    });
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      final res =
+          await ref.read(registrationProvider.notifier).checkUsername(value);
+      if (!mounted || seq != _checkSeq) return;
+      setState(() {
+        _usernameStatus = res.available
+            ? _UsernameStatus.available
+            : _UsernameStatus.unavailable;
+        _usernameError = res.available ? null : res.error;
+      });
+    });
+  }
+
+  String? _validateUsername(String? v) {
+    final value = (v ?? '').trim();
+    if (value.isEmpty) return 'Wajib diisi';
+    if (value.length < 4 || value.length > 30) return 'Username 4-30 karakter';
+    if (!_usernameRe.hasMatch(value)) {
+      return 'Awali dengan huruf kecil; hanya huruf kecil, angka, titik, underscore';
+    }
+    if (_usernameStatus == _UsernameStatus.unavailable) {
+      return _usernameError ?? 'Username tidak tersedia';
+    }
+    if (_usernameStatus == _UsernameStatus.checking) {
+      return 'Sedang memeriksa username...';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? v) {
+    final value = v ?? '';
+    if (value.isEmpty) return 'Wajib diisi';
+    if (value.length < 8) return 'Password minimal 8 karakter';
+    if (!RegExp(r'[A-Za-z]').hasMatch(value) || !RegExp(r'\d').hasMatch(value)) {
+      return 'Password harus kombinasi huruf dan angka';
+    }
+    return null;
+  }
+
+  Widget? _usernameSuffix() {
+    switch (_usernameStatus) {
+      case _UsernameStatus.checking:
+        return const Padding(
+          padding: EdgeInsets.all(14),
+          child: SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      case _UsernameStatus.available:
+        return const Icon(Icons.check_circle_rounded, color: Colors.green);
+      case _UsernameStatus.unavailable:
+        return Icon(Icons.cancel_rounded, color: Colors.red.shade600);
+      case _UsernameStatus.idle:
+        return null;
+    }
   }
 
   Future<void> _pickFoto() async {
@@ -53,9 +143,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     await ref.read(registrationProvider.notifier).register(
+      username:   _usernameCtrl.text.trim(),
       nama:       _namaCtrl.text.trim(),
-      phone:      _phoneCtrl.text.trim(),
-      alamat:     _alamatCtrl.text.trim(),
+      password:   _passCtrl.text,
       fotoBase64: kIsWeb ? null : _fotoBase64,
     );
   }
@@ -146,7 +236,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Isi data berikut untuk mendaftar.\nPassword akan dikirim ke WhatsApp Anda.',
+                    'Buat username dan password untuk akun Anda.\nCatat username dan password Anda.',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.60),
                       fontSize: 12,
@@ -210,6 +300,21 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildField(
+                        controller: _usernameCtrl,
+                        label: 'Username',
+                        hint: 'Contoh: budi.santoso',
+                        icon: Icons.alternate_email_rounded,
+                        enabled: !isLoading,
+                        action: TextInputAction.next,
+                        suffix: _usernameSuffix(),
+                        onChanged: _onUsernameChanged,
+                        validator: _validateUsername,
+                        helper: _usernameStatus == _UsernameStatus.available
+                            ? 'Username tersedia'
+                            : null,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildField(
                         controller: _namaCtrl,
                         label: 'Nama Lengkap',
                         icon: Icons.person_outline_rounded,
@@ -218,29 +323,38 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                       ),
                       const SizedBox(height: 14),
                       _buildField(
-                        controller: _phoneCtrl,
-                        label: 'Nomor WhatsApp',
-                        hint: 'Contoh: 08123456789',
-                        icon: Icons.phone_outlined,
+                        controller: _passCtrl,
+                        label: 'Password',
+                        hint: 'Min. 8 karakter, huruf dan angka',
+                        icon: Icons.lock_outline_rounded,
                         enabled: !isLoading,
-                        keyboardType: TextInputType.phone,
+                        obscure: _obscure,
                         action: TextInputAction.next,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) return 'Wajib diisi';
-                          final digits = v.replaceAll(RegExp(r'\D'), '');
-                          if (digits.length < 9) return 'Nomor tidak valid';
-                          return null;
-                        },
+                        validator: _validatePassword,
+                        suffix: IconButton(
+                          icon: Icon(
+                            _obscure
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            size: 20,
+                            color: Colors.grey.shade600,
+                          ),
+                          onPressed: () => setState(() => _obscure = !_obscure),
+                        ),
                       ),
                       const SizedBox(height: 14),
                       _buildField(
-                        controller: _alamatCtrl,
-                        label: 'Alamat (opsional)',
-                        icon: Icons.home_outlined,
+                        controller: _pass2Ctrl,
+                        label: 'Ulangi Password',
+                        icon: Icons.lock_reset_rounded,
                         enabled: !isLoading,
-                        maxLines: 3,
+                        obscure: _obscure,
                         action: TextInputAction.done,
-                        validator: (_) => null,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Wajib diisi';
+                          if (v != _passCtrl.text) return 'Password tidak sama';
+                          return null;
+                        },
                       ),
                       if (!kIsWeb) ...[
                         const SizedBox(height: 14),
@@ -416,7 +530,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Informasi login telah dikirim ke WhatsApp Anda.\nSilakan cek pesan masuk.',
+          'Akun Anda sudah dibuat.\nSilakan login dengan username dan password Anda.',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.70),
@@ -444,7 +558,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                login ?? '(lihat WhatsApp Anda)',
+                login ?? '-',
                 style: const TextStyle(
                   color: _kSky,
                   fontSize: 18,
@@ -493,6 +607,10 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     TextInputType keyboardType = TextInputType.text,
     TextInputAction action = TextInputAction.next,
     int maxLines = 1,
+    bool obscure = false,
+    Widget? suffix,
+    String? helper,
+    ValueChanged<String>? onChanged,
     String? Function(String?)? validator,
   }) {
     const border = OutlineInputBorder(
@@ -510,10 +628,17 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
       keyboardType: maxLines > 1 ? TextInputType.multiline : keyboardType,
       textInputAction: action,
       maxLines: maxLines,
+      obscureText: obscure,
+      onChanged: onChanged,
+      autocorrect: false,
+      enableSuggestions: !obscure,
       style: const TextStyle(color: _kDark, fontSize: 15),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
+        helperText: helper,
+        helperStyle: TextStyle(color: Colors.green.shade700, fontSize: 12),
+        suffixIcon: suffix,
         labelStyle:
             const TextStyle(color: Color(0xFF888888), fontSize: 14),
         hintStyle:

@@ -1,7 +1,7 @@
 ﻿name: digital_kamtibmas_mobile
 description: "AMPERA2407 - Platform Layanan Publik Digital Kota Palembang."
 publish_to: 'none'
-version: 1.3.0+6
+version: 1.4.0+7
 # Format: versionName+versionCode
 # versionCode (angka setelah +) WAJIB naik setiap upload ke Play Store
 
