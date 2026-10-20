@@ -26,11 +26,12 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    // Odoo mengembalikan SessionExpiredException dalam body JSON-RPC (status 200)
+    // Odoo mengembalikan SessionExpiredException dalam body JSON-RPC (status 200).
+    // Modulnya berbeda antar versi: odoo.exceptions.* (lama) vs odoo.http.* (19+).
     final data = response.data;
     if (data is Map) {
       final name = (data['error'] as Map?)?['data']?['name'] as String? ?? '';
-      if (name == 'odoo.exceptions.SessionExpiredException') {
+      if (name.endsWith('SessionExpiredException')) {
         _sessionExpired.expire();
       }
     }

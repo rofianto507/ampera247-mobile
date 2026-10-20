@@ -7,7 +7,7 @@
       "type": "dart",
       "deviceId": "058990610406",
       "args": [
-        "--dart-define=BASE_URL=https://palembang.polisibaik.id",
+        "--dart-define=BASE_URL=https://ampera2407.id",
         "--dart-define=DB_NAME=palembang"
       ]
     },

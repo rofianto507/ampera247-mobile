@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/config/app_config.dart';
@@ -353,12 +354,46 @@ class _WelcomeDialogState extends State<_WelcomeDialog> {
                           ? const SizedBox.shrink()
                           : GestureDetector(
                               onTap: () {},
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Image.memory(
-                                  _bytes!,
-                                  fit: BoxFit.contain,
-                                ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Image.memory(
+                                      _bytes!,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  if (widget.data.buttonUrl.isNotEmpty) ...[
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: FilledButton(
+                                        style: FilledButton.styleFrom(
+                                          backgroundColor: Colors.white,
+                                          foregroundColor: const Color(0xFF1D2A44),
+                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        onPressed: () async {
+                                          final uri = Uri.tryParse(widget.data.buttonUrl);
+                                          if (uri != null && await canLaunchUrl(uri)) {
+                                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                          }
+                                        },
+                                        child: Text(
+                                          widget.data.buttonLabel,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
                 ),
@@ -405,7 +440,9 @@ class _BannerSliderState extends ConsumerState<_BannerSlider> {
     _timer?.cancel();
     if (count < 2) return;
     _timer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (!mounted) return;
+      // hasClients: saat slider kembali ke state loading, PageView keluar dari
+      // tree dan controller lepas walau State-nya masih mounted.
+      if (!mounted || !_ctrl.hasClients) return;
       final next = (_page + 1) % count;
       _ctrl.animateToPage(next, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
     });

@@ -7,11 +7,15 @@ class WelcomeScreenData {
   final String name;
   final String imageUrl;
   final String keterangan;
+  final String buttonLabel;
+  final String buttonUrl;
   const WelcomeScreenData({
     required this.id,
     required this.name,
     required this.imageUrl,
     required this.keterangan,
+    required this.buttonLabel,
+    required this.buttonUrl,
   });
 }
 
@@ -27,6 +31,8 @@ final welcomeScreenProvider = FutureProvider<WelcomeScreenData?>((ref) async {
       name: result['name'] as String,
       imageUrl: '${AppConfig.baseUrl}${result['image_url'] as String}',
       keterangan: (result['keterangan'] as String?) ?? '',
+      buttonLabel: (result['button_label'] as String?) ?? 'Lihat detail',
+      buttonUrl: (result['button_url'] as String?) ?? '',
     );
   } catch (_) {
     return null;

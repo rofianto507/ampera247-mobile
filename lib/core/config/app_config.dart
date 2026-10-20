@@ -1,7 +1,7 @@
 class AppConfig {
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://palembang.polisibaik.id',
+    defaultValue: 'https://ampera2407.id',
   );
 
   static const String dbName = String.fromEnvironment(

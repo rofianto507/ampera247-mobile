@@ -18,7 +18,10 @@ final sessionExpiredProvider = ChangeNotifierProvider<SessionExpiredNotifier>(
 final apiClientProvider = Provider<ApiClient>(
   (ref) => ApiClient(
     storage: ref.watch(secureStorageProvider),
-    sessionExpired: ref.watch(sessionExpiredProvider),
+    // read, bukan watch: ApiClient hanya perlu instance notifier-nya. Dengan
+    // watch, tiap notifyListeners() membangun ulang Dio + seluruh provider
+    // turunannya sehingga satu session expired memicu badai request.
+    sessionExpired: ref.read(sessionExpiredProvider),
   ),
 );
 
@@ -50,6 +53,9 @@ class AuthNotifier extends AsyncNotifier<User?> {
             db: db,
           ),
     );
+    if (state.valueOrNull != null) {
+      ref.read(sessionExpiredProvider).reset();
+    }
   }
 
   Future<void> logout() async {

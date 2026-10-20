@@ -35,12 +35,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.listen(authNotifierProvider, (_, _) => notifier.signal());
   ref.listen(_splashTimerProvider, (_, _) => notifier.signal());
 
-  // Auto-logout saat Odoo session expired (server restart, timeout, dll.)
+  // Auto-logout saat Odoo session expired (server restart, timeout, dll.).
+  // Flag sengaja dibiarkan menyala sampai login berikutnya berhasil: saat
+  // session mati, semua request yang sedang terbang ikut balas expired, dan
+  // me-reset lebih awal membuat tiap respons sisa memicu logout lagi.
   ref.listen<SessionExpiredNotifier>(sessionExpiredProvider, (_, expired) {
-    if (expired.hasExpired) {
-      expired.reset();
-      ref.read(authNotifierProvider.notifier).logout();
-    }
+    if (!expired.hasExpired) return;
+    ref.read(authNotifierProvider.notifier).logout();
   });
 
   return GoRouter(

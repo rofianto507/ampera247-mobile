@@ -7,7 +7,7 @@ import '../../../../core/config/app_config.dart';
 import '../../../../core/error/exceptions.dart';
 import '../providers/auth_provider.dart';
 
-const _kPrivacyPolicyUrl = 'https://palembang.polisibaik.id/kebijakan-privasi';
+const _kPrivacyPolicyUrl = 'https://ampera2407.id/kebijakan-privasi';
 
 // ── Palette (Biru Prabowo) ────────────────────────────────────────────────────
 const _kBlue0 = Color(0xFF0D1526); // gradient start — very dark navy

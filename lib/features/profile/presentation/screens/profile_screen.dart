@@ -7,7 +7,7 @@ import '../../../../core/config/app_config.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 const _kPrivacyPolicyUrl =
-    'https://palembang.polisibaik.id/kebijakan-privasi';
+    'https://ampera2407.id/kebijakan-privasi';
 const _kChildSafetyEmail = 'selstudiojember@gmail.com';
 
 const _kBlue0 = Color(0xFF0D1526);
