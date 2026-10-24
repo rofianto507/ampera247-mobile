@@ -6,11 +6,6 @@
 		<string>Lokasi digunakan untuk menentukan titik kejadian kecelakaan secara otomatis pada fitur e-Form Kecelakaan.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>Lokasi digunakan untuk menentukan titik kejadian kecelakaan secara otomatis pada fitur e-Form Kecelakaan.</string>
-		<key>UIBackgroundModes</key>
-		<array>
-			<string>fetch</string>
-			<string>remote-notification</string>
-		</array>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>
