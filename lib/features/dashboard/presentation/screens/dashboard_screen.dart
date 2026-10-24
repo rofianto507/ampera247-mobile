@@ -1,5 +1,6 @@
 ﻿import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -298,6 +299,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
 // â”€â”€ Welcome Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+// Radius sama untuk gambar dan tombol agar tepinya selaras
+const double _kWelcomeRadius = 16;
+
 class _WelcomeDialog extends StatefulWidget {
   final WelcomeScreenData data;
   final Dio dio;
@@ -309,6 +313,7 @@ class _WelcomeDialog extends StatefulWidget {
 
 class _WelcomeDialogState extends State<_WelcomeDialog> {
   Uint8List? _bytes;
+  double _aspect = 0.8; // lebar / tinggi gambar; dihitung setelah gambar dimuat
   bool _loading = true;
 
   @override
@@ -323,11 +328,20 @@ class _WelcomeDialogState extends State<_WelcomeDialog> {
         widget.data.imageUrl,
         options: Options(responseType: ResponseType.bytes),
       );
-      if (mounted && resp.data != null) {
-        setState(() {
-          _bytes = Uint8List.fromList(resp.data!);
-          _loading = false;
-        });
+      if (resp.data != null) {
+        final bytes = Uint8List.fromList(resp.data!);
+        final codec = await ui.instantiateImageCodec(bytes);
+        final frame = await codec.getNextFrame();
+        final aspect = frame.image.width / frame.image.height;
+        frame.image.dispose();
+        codec.dispose();
+        if (mounted) {
+          setState(() {
+            _bytes = bytes;
+            _aspect = aspect;
+            _loading = false;
+          });
+        }
       }
     } catch (_) {
       if (mounted) setState(() => _loading = false);
@@ -353,50 +367,76 @@ class _WelcomeDialogState extends State<_WelcomeDialog> {
                           color: Colors.white, strokeWidth: 2)
                       : _bytes == null
                           ? const SizedBox.shrink()
-                          : GestureDetector(
-                              onTap: () {},
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.memory(
-                                      _bytes!,
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                  if (widget.data.buttonUrl.isNotEmpty) ...[
-                                    const SizedBox(height: 12),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: FilledButton(
-                                        style: FilledButton.styleFrom(
-                                          backgroundColor: Colors.white,
-                                          foregroundColor: const Color(0xFF1D2A44),
-                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                        ),
-                                        onPressed: () async {
-                                          final uri = Uri.tryParse(widget.data.buttonUrl);
-                                          if (uri != null && await canLaunchUrl(uri)) {
-                                            await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                          }
-                                        },
-                                        child: Text(
-                                          widget.data.buttonLabel,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 15,
-                                          ),
+                          : LayoutBuilder(builder: (context, c) {
+                              // Gambar dan tombol HARUS selebar sama: lebar
+                              // dibatasi lebar layar dan tinggi yang tersisa
+                              // (setelah ruang tombol), sesuai rasio gambar.
+                              final hasButton =
+                                  widget.data.buttonUrl.isNotEmpty;
+                              const buttonArea = 12.0 + 52.0;
+                              final maxImgH = c.maxHeight -
+                                  (hasButton ? buttonArea : 0);
+                              final w = (maxImgH * _aspect)
+                                  .clamp(0.0, c.maxWidth)
+                                  .toDouble();
+                              return GestureDetector(
+                                onTap: () {},
+                                child: SizedBox(
+                                  width: w,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius:
+                                            BorderRadius.circular(_kWelcomeRadius),
+                                        child: Image.memory(
+                                          _bytes!,
+                                          width: w,
+                                          fit: BoxFit.fitWidth,
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
+                                      if (hasButton) ...[
+                                        const SizedBox(height: 12),
+                                        SizedBox(
+                                          height: 52,
+                                          child: FilledButton(
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor: Colors.white,
+                                              foregroundColor:
+                                                  const Color(0xFF1D2A44),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        _kWelcomeRadius),
+                                              ),
+                                            ),
+                                            onPressed: () async {
+                                              final uri = Uri.tryParse(
+                                                  widget.data.buttonUrl);
+                                              if (uri != null &&
+                                                  await canLaunchUrl(uri)) {
+                                                await launchUrl(uri,
+                                                    mode: LaunchMode
+                                                        .externalApplication);
+                                              }
+                                            },
+                                            child: Text(
+                                              widget.data.buttonLabel,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }),
                 ),
               ),
               // Tombol tutup
