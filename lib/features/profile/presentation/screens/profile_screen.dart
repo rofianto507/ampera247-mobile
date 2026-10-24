@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../providers/profile_provider.dart';
+import '../widgets/edit_profile_sheet.dart';
 
 const _kPrivacyPolicyUrl =
     'https://ampera2407.id/kebijakan-privasi';
@@ -28,6 +30,28 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authNotifierProvider).valueOrNull;
     final dio  = ref.read(apiClientProvider).dio;
+    final photoVersion = ref.watch(profilePhotoVersionProvider);
+    final photoUrl =
+        '${AppConfig.baseUrl}/web/image/res.users/${user?.id}/image_128?v=$photoVersion';
+
+    Future<void> openEdit() async {
+      final u = user;
+      if (u == null) return;
+      final saved = await showEditProfileSheet(
+        context,
+        currentName: u.name,
+        currentPhotoUrl: photoUrl,
+      );
+      if (saved && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Profil berhasil diperbarui'),
+            backgroundColor: Colors.green.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4FA),
@@ -62,10 +86,33 @@ class ProfileScreen extends ConsumerWidget {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _AvatarLarge(
-                              url: '${AppConfig.baseUrl}/web/image/res.users/${user.id}/image_128',
-                              initials: _initials(user.name),
-                              dio: dio,
+                            GestureDetector(
+                              onTap: openEdit,
+                              child: Stack(
+                                children: [
+                                  _AvatarLarge(
+                                    key: ValueKey(photoVersion),
+                                    url: photoUrl,
+                                    initials: _initials(user.name),
+                                    dio: dio,
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    bottom: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: _kSky,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: _kBlue1, width: 2),
+                                      ),
+                                      child: const Icon(Icons.edit_rounded,
+                                          size: 14, color: _kBlue1),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 14),
                             Text(
@@ -85,6 +132,24 @@ class ProfileScreen extends ConsumerWidget {
                                 fontSize: 13,
                               ),
                               textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: BorderSide(
+                                    color: Colors.white.withValues(alpha: 0.5)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                              ),
+                              icon: const Icon(Icons.edit_outlined, size: 16),
+                              label: const Text('Edit Profil',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600)),
+                              onPressed: openEdit,
                             ),
                           ],
                         ),
@@ -565,7 +630,10 @@ class _AvatarLarge extends StatefulWidget {
   final String initials;
   final Dio dio;
   const _AvatarLarge(
-      {required this.url, required this.initials, required this.dio});
+      {super.key,
+      required this.url,
+      required this.initials,
+      required this.dio});
 
   @override
   State<_AvatarLarge> createState() => _AvatarLargeState();

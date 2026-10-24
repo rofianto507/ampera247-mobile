@@ -54,6 +54,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (authAsync.isLoading || !splashDone) {
         if (loc == '/splash') return null;
+        // Saat user menekan Masuk, state auth jadi loading. Jangan lempar ke
+        // splash: LoginScreen akan dibuang dan pesan "username/password salah"
+        // tidak pernah tampil. Spinner login sudah ditangani LoginScreen.
+        if (splashDone && (loc == '/login' || loc == '/register')) return null;
         return '/splash';
       }
 

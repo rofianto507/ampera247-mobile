@@ -1,5 +1,6 @@
 ﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/session_expired_notifier.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
@@ -56,6 +57,22 @@ class AuthNotifier extends AsyncNotifier<User?> {
     if (state.valueOrNull != null) {
       ref.read(sessionExpiredProvider).reset();
     }
+  }
+
+  /// Perbarui nama di sesi aktif setelah server menyimpan perubahan profil.
+  Future<void> updateName(String name) async {
+    final user = state.valueOrNull;
+    if (user == null) return;
+    await ref
+        .read(secureStorageProvider)
+        .write(key: AppConstants.nameKey, value: name);
+    state = AsyncData(User(
+      id: user.id,
+      name: name,
+      login: user.login,
+      imageUrl: user.imageUrl,
+      isPatroli: user.isPatroli,
+    ));
   }
 
   Future<void> logout() async {

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../antrian/presentation/providers/antrian_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../eform_laka/presentation/providers/eform_laka_provider.dart';
 import '../../../rehab/presentation/providers/rehab_provider.dart';
 import '../../../notifikasi/presentation/providers/notifikasi_provider.dart';
@@ -627,7 +628,8 @@ class _Header extends StatelessWidget {
                   height: 52,
                   child: ClipOval(
                     child: _AvatarImage(
-                      url: '${AppConfig.baseUrl}/web/image/res.users/$userId/image_128',
+                      key: ValueKey(ref.watch(profilePhotoVersionProvider)),
+                      url: '${AppConfig.baseUrl}/web/image/res.users/$userId/image_128?v=${ref.watch(profilePhotoVersionProvider)}',
                       initials: _initials(userName),
                       dio: ref.read(apiClientProvider).dio,
                     ),
@@ -694,7 +696,10 @@ class _AvatarImage extends StatefulWidget {
   final String initials;
   final Dio dio;
   const _AvatarImage(
-      {required this.url, required this.initials, required this.dio});
+      {super.key,
+      required this.url,
+      required this.initials,
+      required this.dio});
 
   @override
   State<_AvatarImage> createState() => _AvatarImageState();
