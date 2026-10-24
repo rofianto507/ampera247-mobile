@@ -1,0 +1,2 @@
+# Podfile dibaca Ruby/CocoaPods di macOS: selalu LF
+ios/Podfile text eol=lf
