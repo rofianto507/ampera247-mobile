@@ -115,33 +115,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Logo circle
-                      Container(
-                        width: 96,
-                        height: 96,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(color: _kSky, width: 2.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.4),
-                              blurRadius: 24,
-                              spreadRadius: 2,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, _, _) => const Icon(
-                              Icons.shield_rounded,
-                              size: 52,
-                              color: _kSky,
-                            ),
-                          ),
+                      // Logo penuh, tanpa lingkaran / background (PNG transparan)
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 150,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => const Icon(
+                          Icons.shield_rounded,
+                          size: 96,
+                          color: _kSky,
                         ),
                       ),
 
@@ -149,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       // Brand
                       const Text(
-                        'AMPERA2407',
+                        'AMPERA247',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
