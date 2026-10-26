@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/config/app_version.dart';
 import '../../../../core/error/exceptions.dart';
 import '../providers/auth_provider.dart';
 
@@ -387,6 +388,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               const TextSpan(text: ' kami.'),
                             ],
                           ),
+                        ),
+                      ),
+
+                      // Versi aplikasi
+                      const SizedBox(height: 10),
+                      Text(
+                        ref.watch(appVersionProvider).valueOrNull ?? '',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.35),
+                          fontSize: 11,
+                          letterSpacing: 0.5,
                         ),
                       ),
 

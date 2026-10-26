@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/config/app_version.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/edit_profile_sheet.dart';
@@ -30,6 +31,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authNotifierProvider).valueOrNull;
     final dio  = ref.read(apiClientProvider).dio;
+    final appVersion = ref.watch(appVersionProvider).valueOrNull ?? '';
     final photoVersion = ref.watch(profilePhotoVersionProvider);
     final photoUrl =
         '${AppConfig.baseUrl}/web/image/res.users/${user?.id}/image_128?v=$photoVersion';
@@ -228,10 +230,11 @@ class ProfileScreen extends ConsumerWidget {
                               },
                             ),
                             const _Divider(),
-                            const _InfoTile(
+                            _InfoTile(
                               icon: Icons.info_outline_rounded,
                               label: 'Versi Aplikasi',
-                              value: 'AMPERA PBM v1.0.0 (Build 1)',
+                              value:
+                                  'AMPERA PBM — ${appVersion.replaceFirst('Versi ', '')}',
                             ),
                           ],
                         ),
@@ -287,7 +290,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text(
-                        'AMPERA PBM v1.0',
+                        'AMPERA PBM ${appVersion.replaceFirst('Versi ', 'v')}',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: _kBlue1.withValues(alpha: 0.60),
