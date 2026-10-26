@@ -84,7 +84,9 @@ flutter:
 
 flutter_native_splash:
   color: "#010D1E"
-  image: assets/images/logo.png
+  # Emblem + tulisan POLRESTABES PALEMBANG. Android 12+ tetap memakai ikon
+  # launcher (sistem tidak mengizinkan teks di splash), jadi hanya Android <=11 & iOS.
+  image: assets/images/splash_logo.png
   ios: true
   android: true
   web: false
