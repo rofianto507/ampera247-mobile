@@ -65,7 +65,7 @@ class SplashScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 28),
                           const Text(
-                            'AMPERA247',
+                            'AMPERA PBM',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 30,
@@ -88,7 +88,7 @@ class SplashScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'Layanan Digital Kota Palembang',
+                            'Polisi Bersama Masyarakat',
                             style: TextStyle(
                               color: Color(0xFFA2CFFE),
                               fontSize: 12,

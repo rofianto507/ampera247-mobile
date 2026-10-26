@@ -131,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                       // Brand
                       const Text(
-                        'AMPERA247',
+                        'AMPERA PBM',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 30,
@@ -156,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
 
                       const Text(
-                        'Kota Palembang',
+                        'Polisi Bersama Masyarakat',
                         style: TextStyle(
                           color: Color(0xFFC5D5E8),
                           fontSize: 12,

@@ -24,7 +24,7 @@ class DigitalKamtibmasApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
-      title: 'AMPERA247',
+      title: 'AMPERA PBM',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       routerConfig: router,

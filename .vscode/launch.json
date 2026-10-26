@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "AMPERA247 - Real Device (Debug)",
+      "name": "AMPERA PBM - Real Device (Debug)",
       "request": "launch",
       "type": "dart",
       "deviceId": "058990610406",
@@ -12,7 +12,7 @@
       ]
     },
     {
-      "name": "AMPERA247 - Web Server :5500",
+      "name": "AMPERA PBM - Web Server :5500",
       "request": "launch",
       "type": "dart",
       "deviceId": "web-server",
@@ -23,7 +23,7 @@
       ]
     },
     {
-      "name": "AMPERA247 - Chrome (Debug)",
+      "name": "AMPERA PBM - Chrome (Debug)",
       "request": "launch",
       "type": "dart",
       "deviceId": "chrome",
@@ -33,7 +33,7 @@
       ]
     },
     {
-      "name": "AMPERA247 - Edge (Debug)",
+      "name": "AMPERA PBM - Edge (Debug)",
       "request": "launch",
       "type": "dart",
       "deviceId": "edge",

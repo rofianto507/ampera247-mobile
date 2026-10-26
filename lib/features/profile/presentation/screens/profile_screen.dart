@@ -217,9 +217,9 @@ class ProfileScreen extends ConsumerWidget {
                                   scheme: 'mailto',
                                   path: _kChildSafetyEmail,
                                   queryParameters: {
-                                    'subject': 'Laporan Keselamatan Anak - AMPERA247',
+                                    'subject': 'Laporan Keselamatan Anak - AMPERA PBM',
                                     'body':
-                                        'Halo Tim AMPERA247,\n\nSaya ingin melaporkan masalah keselamatan anak:\n\n[Jelaskan masalah di sini]\n\nTerima kasih.',
+                                        'Halo Tim AMPERA PBM,\n\nSaya ingin melaporkan masalah keselamatan anak:\n\n[Jelaskan masalah di sini]\n\nTerima kasih.',
                                   },
                                 );
                                 if (await canLaunchUrl(uri)) {
@@ -231,7 +231,7 @@ class ProfileScreen extends ConsumerWidget {
                             const _InfoTile(
                               icon: Icons.info_outline_rounded,
                               label: 'Versi Aplikasi',
-                              value: 'AMPERA247 v1.0.0 (Build 1)',
+                              value: 'AMPERA PBM v1.0.0 (Build 1)',
                             ),
                           ],
                         ),
@@ -287,7 +287,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text(
-                        'AMPERA247 v1.0',
+                        'AMPERA PBM v1.0',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: _kBlue1.withValues(alpha: 0.60),
@@ -298,7 +298,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        'AMPERA247',
+                        'AMPERA PBM',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: _kBlue1.withValues(alpha: 0.40),
