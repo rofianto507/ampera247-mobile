@@ -127,22 +127,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 10),
 
-                      // Brand
+                      // Nama instansi di bawah logo
                       const Text(
-                        'AMPERA PBM',
+                        'POLRESTABES PALEMBANG',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 30,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 4,
+                          color: _kSky,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 2.5,
                         ),
                       ),
 
-                      // Gold divider
+                      // Pemisah antara nama instansi dan nama aplikasi
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -155,6 +156,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                       ),
 
+                      // Brand
+                      const Text(
+                        'AMPERA PBM',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 4,
+                        ),
+                      ),
+
+                      // Keterangan aplikasi, rapat ke nama aplikasi
+                      const SizedBox(height: 4),
                       const Text(
                         'Polisi Bersama Masyarakat',
                         style: TextStyle(

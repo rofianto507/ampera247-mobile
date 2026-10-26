@@ -35,45 +35,31 @@ class SplashScreen extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            width: 108,
-                            height: 108,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              border: Border.all(color: _kSky, width: 2.5),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  blurRadius: 32,
-                                  spreadRadius: 2,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, _, _) => const Icon(
-                                  Icons.shield_rounded,
-                                  size: 56,
-                                  color: Color(0xFF1A56A0),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 28),
-                          const Text(
-                            'AMPERA PBM',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 4,
+                          // Logo penuh, tanpa lingkaran / background (PNG transparan)
+                          Image.asset(
+                            'assets/images/logo.png',
+                            height: 210,
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, _, _) => const Icon(
+                              Icons.shield_rounded,
+                              size: 110,
+                              color: Color(0xFFA2CFFE),
                             ),
                           ),
                           const SizedBox(height: 8),
+                          // Nama instansi di bawah logo
+                          const Text(
+                            'POLRESTABES PALEMBANG',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFFA2CFFE),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 2.5,
+                            ),
+                          ),
+                          // Pemisah antara nama instansi dan nama aplikasi
+                          const SizedBox(height: 12),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -86,7 +72,18 @@ class SplashScreen extends StatelessWidget {
                                   color: _kSky.withValues(alpha: 0.5)),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'AMPERA PBM',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 4,
+                            ),
+                          ),
+                          // Keterangan aplikasi, rapat ke nama aplikasi
+                          const SizedBox(height: 4),
                           const Text(
                             'Polisi Bersama Masyarakat',
                             style: TextStyle(
