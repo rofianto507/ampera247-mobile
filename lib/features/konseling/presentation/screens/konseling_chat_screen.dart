@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/open_url.dart';
@@ -76,7 +77,19 @@ class _KonselingChatScreenState extends State<KonselingChatScreen> {
         ? <String, String>{'Cookie': 'session_id=$sessionId'}
         : <String, String>{};
 
-    final ctrl = WebViewController()
+    // iOS (WKWebView): panggilan video WebRTC butuh pemutaran inline (bukan layar
+    // penuh) dan media tanpa syarat interaksi pengguna.
+    late final PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final ctrl = WebViewController.fromPlatformCreationParams(params)
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setUserAgent(
           'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36')
@@ -121,6 +134,11 @@ class _KonselingChatScreenState extends State<KonselingChatScreen> {
         // ignore: avoid_print
         print('WV[${msg.level.name}]: ${msg.message}');
       });
+    } else if (ctrl.platform is WebKitWebViewController) {
+      // iOS 15+: izin kamera/mikrofon dari halaman Odoo diberikan otomatis
+      // (user sudah menyetujui dialog sistem di _requestPermissionsAndInit).
+      await (ctrl.platform as WebKitWebViewController)
+          .setOnPlatformPermissionRequest((request) async => request.grant());
     }
 
     if (mounted) setState(() => _controller = ctrl);
