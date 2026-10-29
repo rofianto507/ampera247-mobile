@@ -590,9 +590,24 @@ class _SlideImageCardState extends State<_SlideImageCard>
     } catch (_) {}
   }
 
+  Future<void> _openUrl() async {
+    final uri = widget.item.actionUri;
+    if (uri == null) return;
+    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tidak dapat membuka tautan.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final tappable = widget.item.actionUri != null;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
@@ -608,14 +623,33 @@ class _SlideImageCardState extends State<_SlideImageCard>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
-        child: _bytes == null
-            ? const Center(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (_bytes == null)
+              const Center(
                 child: SizedBox(
                   width: 24, height: 24,
                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white38),
                 ),
               )
-            : Image.memory(_bytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+            else
+              Image.memory(_bytes!, fit: BoxFit.cover, width: double.infinity, height: double.infinity),
+            // Banner tanpa URL tidak diberi efek ketuk sama sekali.
+            if (tappable)
+              Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: _openUrl,
+                  child: Semantics(
+                    button: true,
+                    label: widget.item.name,
+                    child: const SizedBox.expand(),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
