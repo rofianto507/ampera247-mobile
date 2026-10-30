@@ -11,7 +11,7 @@ import '../widgets/edit_profile_sheet.dart';
 
 const _kPrivacyPolicyUrl =
     'https://ampera2407.id/kebijakan-privasi';
-const _kChildSafetyEmail = 'selstudiojember@gmail.com';
+const _kChildSafetyEmail = 'apkgotech@gmail.com';
 
 const _kBlue0 = Color(0xFF0D1526);
 const _kBlue1 = Color(0xFF1D2A44);
