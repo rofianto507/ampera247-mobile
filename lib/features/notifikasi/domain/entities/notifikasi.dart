@@ -1,3 +1,5 @@
+import '../../../../core/utils/odoo_time.dart';
+
 class NotifikasiItem {
   final int id;
   final String judul;
@@ -22,7 +24,7 @@ class NotifikasiItem {
         tipe: j['tipe'] as String? ?? 'system',
         isRead: j['is_read'] as bool? ?? false,
         createdAt: j['created_at'] != null
-            ? DateTime.parse(j['created_at'] as String).toLocal()
+            ? parseOdooUtc(j['created_at'] as String)
             : DateTime.now(),
       );
 }

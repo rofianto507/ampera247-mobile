@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/utils/odoo_time.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/konseling.dart';
 import '../providers/konseling_provider.dart';
@@ -315,7 +316,7 @@ class _KonselingCard extends StatelessWidget {
   String _fmtDatetime(String d) {
     try {
       return DateFormat('dd MMM yyyy, HH:mm', 'id')
-          .format(DateTime.parse(d).toLocal());
+          .format(parseOdooUtc(d));
     } catch (_) {
       return d;
     }
@@ -1072,7 +1073,7 @@ class _KonselingDetailSheet extends StatelessWidget {
   String _fmtDatetime(String d) {
     try {
       return DateFormat('dd MMM yyyy, HH:mm', 'id')
-          .format(DateTime.parse(d).toLocal());
+          .format(parseOdooUtc(d));
     } catch (_) {
       return d;
     }
