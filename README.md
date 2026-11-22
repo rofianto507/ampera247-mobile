@@ -33,6 +33,27 @@ Kapolrestabes Palembang No. B/1718/X/2026 tanggal 20 Oktober 2026.
 > Backend ada di repositori terpisah:
 > **[digital-kamtibmas](https://github.com/rofianto507/digital-kamtibmas)** (modul Odoo 19).
 
+## Tampilan
+
+<table>
+  <tr>
+    <td align="center" width="20%"><img src="docs/screenshots/01_splash.jpg" alt="Layar pembuka"/></td>
+    <td align="center" width="20%"><img src="docs/screenshots/02_login.jpg" alt="Daftar dan masuk"/></td>
+    <td align="center" width="20%"><img src="docs/screenshots/03_welcome.jpg" alt="Layar sambut"/></td>
+    <td align="center" width="20%"><img src="docs/screenshots/04_beranda.jpg" alt="Beranda"/></td>
+    <td align="center" width="20%"><img src="docs/screenshots/05_eform.jpg" alt="Detail laporan e-Form"/></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>Layar pembuka</sub></td>
+    <td align="center"><sub>Daftar &amp; masuk</sub></td>
+    <td align="center"><sub>Layar sambut</sub></td>
+    <td align="center"><sub>Beranda layanan</sub></td>
+    <td align="center"><sub>Lapor kecelakaan</sub></td>
+  </tr>
+</table>
+
+> Data pada tangkapan layar adalah data uji.
+
 ## Fitur
 
 | Layanan | Kegunaan |
